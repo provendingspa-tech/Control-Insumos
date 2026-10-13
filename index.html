@@ -218,7 +218,7 @@ tr.row-err td{background:var(--alert-soft)}
 <body>
 <header class="top">
   <div class="top-inner">
-    <div><h1 class="brand">Control de insumos<small>Recepción, entrega, devolución y vencimientos por área</small></h1></div>
+    <div><h1 class="brand">Control de insumos <span class="code" style="font-size:12px;vertical-align:middle">v8</span><small>Recepción, entrega, devolución y vencimientos por área</small></h1></div>
     <nav class="tabs" role="tablist" aria-label="Secciones">
       <button role="tab" data-tab="panel" aria-selected="true">Panel</button>
       <button role="tab" data-tab="registrar" aria-selected="false">Registrar movimiento</button>
@@ -380,7 +380,7 @@ tr.row-err td{background:var(--alert-soft)}
       <div class="fields">
         <div class="field"><label for="iCod">SKU (código de barras)</label><div class="sku-row"><input id="iCod" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escanea o escribe el SKU"><button type="button" class="btn ghost cam-btn" data-cam="ins" aria-label="Escanear SKU con cámara" title="Escanear con cámara"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13 8v8M17 8v8"/></svg></button></div><div class="hint">Si el SKU ya existe, se abre para editar.</div></div>
         <div class="field"><label for="iNom">Nombre</label><input id="iNom" autocomplete="off" placeholder="Guantes de nitrilo talla M"></div>
-        <div class="field"><label for="iCat">Categoría</label><input id="iCat" list="catList" autocomplete="off" placeholder="Botellas"><datalist id="catList"></datalist><div class="hint" id="iCodeHint">El código interno se genera con la inicial de la categoría: B001, B002…</div></div>
+        <div class="field"><label for="iCat">Categoría</label><input id="iCat" list="catList" autocomplete="off" placeholder="Botellas"><datalist id="catList"></datalist><div class="hint" id="iCodeHint">El código interno se genera con la inicial de la categoría: B001, B002… Si cambias la categoría, recibe un código nuevo.</div></div>
         <div class="field"><label for="iUni">Unidad</label><input id="iUni" autocomplete="off" placeholder="par, caja, kg, L"></div>
         <div class="field"><label for="iMin">Stock mínimo</label><input id="iMin" type="number" min="0" step="any" value="0"></div>
         <div class="field"><label>&nbsp;</label><label class="check" style="color:var(--ink);margin:0"><input type="checkbox" id="iVence"> Controla vencimiento</label></div>
@@ -402,7 +402,22 @@ tr.row-err td{background:var(--alert-soft)}
   <!-- CARGA MASIVA -->
   <section id="tab-carga" hidden>
     <h2>Carga masiva de recepciones</h2>
-    <p class="lead">Sube una planilla Excel o CSV con una fila por producto recibido. Los SKU nuevos se crean en el catálogo con su código interno automático; los existentes solo suman stock. Nada se guarda hasta que revises la vista previa y confirmes.</p>
+    <div class="grid2" style="grid-template-columns:1fr 1fr;margin:10px 0 22px">
+      <div class="panel">
+        <h3>Cargar recepciones nuevas</h3>
+        <p class="sub" style="margin:0 0 12px">Sube tu planilla con los productos recibidos. Si una fila ya estaba cargada, se detecta y no se duplica.</p>
+        <label class="btn" for="cFile" style="display:inline-flex;align-items:center">Subir planilla</label>
+      </div>
+      <div class="panel" style="border-color:var(--dev)">
+        <h3>Corregir lo ya cargado</h3>
+        <p class="sub" style="margin:0 0 12px"><b>1.</b> Descarga el Excel de la app. <b>2.</b> Corrige: insumos (categoría, nombre, SKU, unidad, mínimo) en la hoja <b>Catálogo</b>; ingresos (cantidad, lote, vencimiento, guía) en la hoja <b>Recepciones</b>, sin tocar la columna ID registro. <b>3.</b> Súbelo aquí: verás cada cambio antes de aplicarlo.</p>
+        <div class="actions" style="margin-top:0">
+          <button type="button" class="btn ghost" id="fixDl">1. Descargar Excel para corregir</button>
+          <label class="btn" for="cFile" style="display:inline-flex;align-items:center">3. Subir Excel corregido</label>
+        </div>
+      </div>
+    </div>
+    <p class="lead">Sube una planilla Excel o CSV con una fila por producto recibido. Los SKU nuevos se crean en el catálogo con su código interno automático. Si subes de nuevo el Excel descargado desde la app con correcciones, la app reconoce cada registro por su <b>ID registro</b> y aplica solo lo que cambió. Nada se guarda hasta que revises la vista previa y confirmes.</p>
     <div class="panel" style="margin-bottom:22px">
       <div class="fields" style="margin-bottom:16px">
         <div class="field"><label for="cResp">Registrado por</label><input id="cResp" autocomplete="name"></div>
@@ -414,9 +429,19 @@ tr.row-err td{background:var(--alert-soft)}
         <input type="file" id="cFile" accept=".xlsx,.xls,.csv,.txt" hidden>
       </label>
       <div class="sub" style="margin-top:12px">Columnas reconocidas (el orden no importa):</div>
-      <div class="cols"><span class="code">SKU *</span><span class="code">Proveedor *</span><span class="code">Cantidad *</span><span class="code">Lote</span><span class="code">Vencimiento</span><span class="code">Nombre</span><span class="code">Unidad</span><span class="code">Categoría</span><span class="code">Guía</span><span class="code">Fecha recepción</span></div>
-      <p class="sub" style="margin:10px 0 0">Nombre, unidad y categoría solo se necesitan para SKU que aún no están en el catálogo. Si una fila trae vencimiento, ese insumo queda marcado como "controla vencimiento".</p>
+      <div class="cols"><span class="code">SKU *</span><span class="code">Proveedor *</span><span class="code">Cantidad *</span><span class="code">Lote</span><span class="code">Vencimiento</span><span class="code">Nombre</span><span class="code">Unidad</span><span class="code">Categoría</span><span class="code">Stock mínimo</span><span class="code">Guía</span><span class="code">Fecha recepción</span></div>
+      <p class="sub" style="margin:10px 0 0">Nombre, unidad y categoría solo se necesitan para SKU que aún no están en el catálogo. Stock mínimo es opcional: en un SKU nuevo queda como su mínimo; en uno existente, si cambia, se corrige. Si una fila trae vencimiento, ese insumo queda marcado como "controla vencimiento".</p>
       <div class="actions"><button type="button" class="btn ghost small" id="tplBtn">Descargar planilla modelo (CSV)</button></div>
+    </div>
+    <div class="panel" style="margin-bottom:22px">
+      <h3>Descargar lo que hay en la app</h3>
+      <p class="sub" style="margin:0 0 14px">Un Excel con las mismas columnas de la planilla de carga, para revisar todo de una vez. Trae tres hojas: <b>Recepciones</b> (cada fila ingresada, a mano, escaneada o por carga masiva), <b>Stock por lote</b> (lo que queda hoy en bodega) y <b>Catálogo</b> (todos los insumos con su código interno).</p>
+      <p class="sub" style="margin:0 0 14px"><b>Para corregir:</b> descarga el Excel, corrige en la hoja Recepciones lo que necesites (nombre, SKU, cantidad, lote, vencimiento, proveedor, guía, formato…) sin tocar la columna <b>ID registro</b>, y súbelo arriba. La vista previa mostrará cada cambio antes de aplicarlo.</p>
+      <div class="actions" style="margin-top:0">
+        <select id="xScope" aria-label="Período de las recepciones"><option value="todo">Recepciones de todo el período</option><option value="mes">Solo recepciones del mes seleccionado en el Panel</option></select>
+        <button type="button" class="btn" id="xBtn">Descargar Excel</button>
+        <span class="msg" id="xMsg" role="status"></span>
+      </div>
     </div>
     <div class="panel" id="prevBox" hidden>
       <div class="panel-head"><h3>Vista previa</h3><span class="sub" id="prevSum"></span></div>
@@ -450,6 +475,12 @@ tr.row-err td{background:var(--alert-soft)}
         <input type="file" id="bkFile" accept=".json,application/json" hidden>
         <div class="msg" id="bkMsg" role="status" style="margin-top:12px"></div>
       </div>
+    </div>
+    <div class="panel" style="margin-top:24px;border-color:var(--alert)">
+      <h3>Empezar de cero</h3>
+      <p class="sub" style="margin:0 0 14px">Borra todos los insumos y todos sus movimientos (recepciones, entregas, devoluciones y bajas) para volver a cargar una planilla corregida. Antes de borrar, la app descarga automáticamente un respaldo. Si solo necesitas corregir algunos datos, usa la corrección desde Carga masiva: así no pierdes las entregas ya registradas.</p>
+      <label class="check" style="margin-bottom:12px"><input type="checkbox" id="wipeKeep" checked> Conservar las áreas</label>
+      <div class="actions" style="margin-top:0"><button type="button" class="btn danger" id="wipeBtn">Borrar todos los insumos y movimientos</button><span class="msg" id="wipeMsg" role="status"></span></div>
     </div>
   </section>
 
@@ -865,8 +896,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     if (dup) return setMsg(msg, `El SKU ${codigo} ya existe (${dup.nombre}).`);
     const prevI = insById(state.editingIns);
     const obj = { id: state.editingIns || newId(), codigo, nombre, unidad, categoria: $("#iCat").value.trim(), min: Math.max(0, parseFloat($("#iMin").value) || 0), vence: $("#iVence").checked };
-    obj.interno = (prevI && prevI.interno) || nextInterno(prefixFor(obj.categoria, nombre));
-    try { await putDoc("insumos", obj); setMsg(msg, state.editingIns ? `Insumo ${obj.interno} actualizado.` : `Insumo agregado con código interno ${obj.interno}.`, true); resetInsForm(); }
+    const pf = prefixFor(obj.categoria, nombre);
+    const keepCode = prevI && prevI.interno && (same(prevI.categoria, obj.categoria) || new RegExp("^" + pf + "\\d+$").test(prevI.interno));
+    obj.interno = keepCode ? prevI.interno : nextInterno(pf);
+    const codeMsg = prevI && prevI.interno && prevI.interno !== obj.interno ? ` Código interno: ${prevI.interno} → ${obj.interno}.` : "";
+    try { await putDoc("insumos", obj); setMsg(msg, state.editingIns ? `Insumo ${obj.interno} actualizado.${codeMsg}` : `Insumo agregado con código interno ${obj.interno}.`, true); resetInsForm(); }
     catch(err) { setMsg(msg, "No se pudo guardar el insumo."); }
   });
   function resetInsForm(){ state.editingIns = null; $("#insForm").reset(); $("#iMin").value = 0; $("#insSave").textContent = "Agregar insumo"; $("#insCancel").hidden = true; }
@@ -1079,6 +1113,18 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     updateBackupState();
   }
   $("#bkSave").addEventListener("click", doBackup);
+  $("#wipeBtn").addEventListener("click", async () => {
+    const msg = $("#wipeMsg"), keep = $("#wipeKeep").checked;
+    if (!state.insumos.length && !state.movs.length && (keep || !state.areas.length)) return setMsg(msg, "No hay datos que borrar.");
+    const ok = await ask("Borrar todos los datos",
+      `Se eliminarán ${state.insumos.length} insumos y ${state.movs.length} movimientos${keep ? "" : ` y ${state.areas.length} áreas`}. Antes de borrar se descargará un respaldo; si te arrepientes, lo recuperas en Restaurar respaldo.`,
+      "Descargar respaldo y borrar", true);
+    if (!ok) return;
+    doBackup();
+    state.insumos = []; state.movs = []; if (!keep) state.areas = [];
+    saveLocal(); resetInsForm(); render(); updateBackupState();
+    setMsg(msg, "Datos borrados. Ya puedes subir la planilla corregida en Carga masiva.", true);
+  });
   $("#bkQuick").addEventListener("click", doBackup);
   $("#bkFile").addEventListener("change", async e => {
     const f = e.target.files[0]; e.target.value = ""; if (!f) return;
@@ -1102,7 +1148,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   const ALIAS = { sku:"sku", codigo:"sku", codigobarras:"sku", codigodebarras:"sku", nombre:"nombre", descripcion:"nombre", producto:"nombre", insumo:"nombre",
     categoria:"categoria", unidad:"unidad", um:"unidad", proveedor:"proveedor", cantidad:"cantidad", cant:"cantidad", lote:"lote",
     vencimiento:"vence", fechavencimiento:"vence", fechadevencimiento:"vence", vence:"vence", vto:"vence",
-    guia:"guia", nguia:"guia", documento:"guia", ndocumento:"guia", guiadedespacho:"guia", fecharecepcion:"fecha", fechaderecepcion:"fecha", fecha:"fecha" };
+    guia:"guia", nguia:"guia", documento:"guia", ndocumento:"guia", guiadedespacho:"guia", idregistro:"id", codigointerno:"interno", stockminimo:"min", minimo:"min", controlavencimiento:"vflag", idderegistro:"id", fecharecepcion:"fecha", fechaderecepcion:"fecha", fecha:"fecha" };
   const pad = n => String(n).padStart(2, "0");
   function toISO(v){
     if (v === null || v === undefined || v === "") return "";
@@ -1128,93 +1174,226 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   let preview = [];
   async function readFile(file){
     const msg = $("#impMsg"); msg.textContent = "";
-    let grid;
+    let sheets = [];
     try {
-      if (/\.(csv|txt)$/i.test(file.name)) grid = parseCSV((await file.text()).replace(/^\ufeff/, ""));
+      if (/\.(csv|txt)$/i.test(file.name)) sheets = [{ name: file.name, grid: parseCSV((await file.text()).replace(/^\ufeff/, "")) }];
       else {
         if (!window.XLSX) return notice("No se pudo leer el Excel", "La librería para leer Excel no cargó. Guarda la planilla como CSV y vuelve a subirla.");
         const wb = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: true });
-        grid = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: "" }).filter(r => r.some(x => String(x).trim()));
+        sheets = wb.SheetNames.map(n => ({ name: n, grid: XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, defval: "" }).filter(r => r.some(x => String(x).trim())) }));
       }
     } catch(e) { return notice("No se pudo leer el archivo", "Revisa que sea un Excel o CSV válido."); }
-    if (!grid || grid.length < 2) return notice("Planilla vacía", "La planilla necesita una fila de encabezados y al menos una fila de datos.");
-    const hi = grid.findIndex(r => r.map(keyOf).some(k => ALIAS[k] === "sku"));
-    if (hi < 0) return notice("Falta la columna SKU", "No encontré una columna llamada SKU. Usa la planilla modelo como referencia.");
-    const cols = grid[hi].map(h => ALIAS[keyOf(h)] || null);
-    for (const need of ["proveedor", "cantidad"]) if (!cols.includes(need)) return notice(`Falta la columna ${need === "proveedor" ? "Proveedor" : "Cantidad"}`, "Las columnas obligatorias son SKU, Proveedor y Cantidad.");
-    buildPreview(grid.slice(hi + 1).map((r, n) => { const o = { _fila: hi + n + 2 }; cols.forEach((c, j) => { if (c && o[c] === undefined) o[c] = r[j]; }); return o; }));
+    const parse = grid => {
+      const hi = grid.findIndex(r => r.map(keyOf).some(k => ALIAS[k] === "sku" || ALIAS[k] === "interno")); if (hi < 0) return null;
+      const cols = grid[hi].map(h => ALIAS[keyOf(h)] || null);
+      return { cols, rows: grid.slice(hi + 1).map((r, n) => { const o = { _fila: hi + n + 2 }; cols.forEach((c, j) => { if (c && o[c] === undefined) o[c] = r[j]; }); return o; }) };
+    };
+    const byName = k => sheets.find(x => keyOf(x.name) === k);
+    let rec = null, cat = null;
+    const recS = byName("recepciones"), catS = byName("catalogo");
+    if (recS || catS) { if (recS) rec = parse(recS.grid); if (catS) cat = parse(catS.grid); }   // Excel descargado de la app: la hoja "Stock por lote" se ignora
+    else {
+      const first = sheets[0] && parse(sheets[0].grid);
+      if (!first) return notice("Falta la columna SKU", "No encontré una columna llamada SKU. Usa la planilla modelo como referencia.");
+      if (first.cols.includes("proveedor") || first.cols.includes("cantidad")) rec = first; else cat = first;
+    }
+    if (rec) for (const need of ["proveedor", "cantidad"]) if (!rec.cols.includes(need)) return notice(`Falta la columna ${need === "proveedor" ? "Proveedor" : "Cantidad"}`, "Las columnas obligatorias son SKU, Proveedor y Cantidad.");
+    if ((!rec || !rec.rows.length) && (!cat || !cat.rows.length)) return notice("Planilla vacía", "La planilla necesita una fila de encabezados y al menos una fila de datos.");
+    buildPreview(rec ? rec.rows : [], cat ? cat.rows : []);
   }
-  function buildPreview(rows){
-    const newBySku = {}, madeCodes = [], defFecha = $("#cFecha").value || today();
-    const lotVence = {}; // sku|lote -> vence dentro del archivo
+  const same = (x, y) => String(x ?? "").trim() === String(y ?? "").trim();
+  function buildPreview(rows, catRows = []){
+    const defFecha = $("#cFecha").value || today();
+    const newBySku = {}, madeCodes = [], lotVence = {}, editSeen = {}, seenIds = new Set();
+    // Nuevo código interno cuando cambia la categoría (B001 → R004, por ejemplo)
+    const regen = (ins, ed) => {
+      const pf = prefixFor(ed.categoria ?? ins.categoria, ed.nombre ?? ins.nombre);
+      if (ins.interno && new RegExp("^" + pf + "\\d+$").test(ins.interno)) return null;
+      const c = nextInterno(pf, madeCodes); madeCodes.push(c); ed.interno = c;
+      return `Código interno: ${ins.interno || "—"} → ${c}`;
+    };
+    const catPrev = catRows.map(r => {
+      const errs = [], changes = [], ed = {};
+      const interno = String(r.interno ?? "").trim(), sku = String(r.sku ?? "").trim();
+      const ins = (interno && state.insumos.find(i => norm(i.interno) === norm(interno))) || (sku && insBySku(sku));
+      const base = { fila: r._fila, hoja: "Catálogo", sku, prov: "", cant: NaN, lote: "", vence: "", guia: "" };
+      if (!ins) return { ...base, ins: null, errs: ["No encontré este insumo en la app (por código interno ni por SKU). Los insumos nuevos se agregan en la pestaña Insumos o con una planilla de recepciones."], changes, kind: "error" };
+      if (sku && !same(sku, ins.codigo)) {
+        const other = insBySku(sku);
+        if (other && other.id !== ins.id) errs.push(`El SKU ${sku} ya pertenece a ${other.nombre}`);
+        else { ed.codigo = sku; editSeen[ins.id + "|codigo"] = sku; changes.push(`SKU: ${ins.codigo} → ${sku}`); }
+      }
+      [["nombre", "Nombre"], ["categoria", "Categoría"], ["unidad", "Unidad"]].forEach(([f, lab]) => {
+        const v = String(r[f] ?? "").trim(), key = ins.id + "|" + f;
+        if (v && !same(v, ins[f]) && !editSeen[key]) { editSeen[key] = v; ed[f] = v; changes.push(`${lab}: ${ins[f] || "—"} → ${v}`); }
+      });
+      if (r.min !== undefined && String(r.min).trim() !== "") {
+        const v = parseFloat(String(r.min).replace(",", "."));
+        if (!(v >= 0)) errs.push("Stock mínimo inválido");
+        else if (Math.abs(v - (ins.min || 0)) > 1e-9) { ed.min = v; editSeen[ins.id + "|min"] = v; changes.push(`Stock mínimo: ${fmt(ins.min || 0)} → ${fmt(v)}`); }
+      }
+      if (r.vflag !== undefined && String(r.vflag).trim() !== "") {
+        const b = /^(s|si|sí|y|yes|x|1|true|verdadero)$/i.test(String(r.vflag).trim());
+        if (b !== !!ins.vence) { ed.vence = b; changes.push(`Controla vencimiento: ${ins.vence ? "Sí" : "No"} → ${b ? "Sí" : "No"}`); }
+      }
+      if (ed.categoria !== undefined && !errs.length) { const c = regen(ins, ed); if (c) changes.push(c); }
+      return { ...base, sku: ed.codigo || ins.codigo, ins, insEd: Object.keys(ed).length ? ed : null, errs, changes, kind: errs.length ? "error" : changes.length ? "catfix" : "catsame" };
+    });
     preview = rows.map(r => {
-      const sku = String(r.sku ?? "").trim(), errs = [];
+      const sku = String(r.sku ?? "").trim(), errs = [], changes = [];
       const cant = parseFloat(String(r.cantidad ?? "").replace(/\s/g, "").replace(",", "."));
-      const prov = String(r.proveedor ?? "").trim(), lote = String(r.lote ?? "").trim();
-      const vence = toISO(r.vence), fecha = toISO(r.fecha) || defFecha, guia = String(r.guia ?? "").trim();
+      const minTxt = String(r.min ?? "").trim(), minVal = minTxt === "" ? null : parseFloat(minTxt.replace(/\s/g, "").replace(",", "."));
+      if (minVal !== null && !(minVal >= 0)) errs.push("Stock mínimo inválido");
+      const hasMin = minVal !== null && minVal >= 0;
+      const prov = String(r.proveedor ?? "").trim(), lote = String(r.lote ?? "").trim(), guia = String(r.guia ?? "").trim();
+      const nombre = String(r.nombre ?? "").trim(), unidad = String(r.unidad ?? "").trim(), categoria = String(r.categoria ?? "").trim();
+      const venceRaw = toISO(r.vence), fechaRaw = toISO(r.fecha), rid = String(r.id ?? "").trim();
       if (!sku) errs.push("Falta SKU");
       if (!prov) errs.push("Falta proveedor");
       if (!(cant > 0)) errs.push("Cantidad inválida");
-      if (vence && !validISO(vence)) errs.push("Vencimiento no reconocido (usa dd-mm-aaaa)");
-      if (!validISO(fecha)) errs.push("Fecha de recepción no reconocida");
-      let ins = sku ? insBySku(sku) : null, nuevo = false;
+      if (venceRaw && !validISO(venceRaw)) errs.push("Vencimiento no reconocido (usa dd-mm-aaaa)");
+      if (fechaRaw && !validISO(fechaRaw)) errs.push("Fecha de recepción no reconocida");
+      const vence = validISO(venceRaw) ? venceRaw : "";
+      const old = rid ? state.movs.find(m => m.id === rid && m.tipo === "recepcion") : null;
+      if (rid && !old) errs.push("Este ID registro no existe en la app (el registro fue anulado o borrado)");
+      if (rid && seenIds.has(rid)) errs.push("ID registro repetido en la planilla");
+      if (rid) seenIds.add(rid);
+      const fecha = fechaRaw || (old ? old.fecha : defFecha);
+
+      // Insumo
+      let ins = sku ? insBySku(sku) : null, nuevo = false, insEd = null;
+      if (old && sku && !ins) {
+        const oi = insById(old.insumoId);
+        if (oi) { ins = oi; insEd = { codigo: sku }; changes.push(`SKU: ${oi.codigo} → ${sku}`); }
+      }
       if (!ins && sku) {
         const k = norm(sku);
-        if (newBySku[k]) { ins = newBySku[k]; if (vence) ins.vence = true; }
+        if (newBySku[k]) { ins = newBySku[k]; if (vence) ins.vence = true; if (hasMin && !ins._minSet) { ins.min = minVal; ins._minSet = true; } }
         else {
-          const nombre = String(r.nombre ?? "").trim(), unidad = String(r.unidad ?? "").trim(), categoria = String(r.categoria ?? "").trim();
           if (!nombre) errs.push("SKU nuevo: falta Nombre");
           if (!unidad) errs.push("SKU nuevo: falta Unidad");
           if (nombre && unidad) {
             const interno = nextInterno(prefixFor(categoria, nombre), madeCodes); madeCodes.push(interno);
-            ins = newBySku[k] = { id: newId(), codigo: sku, nombre, unidad, categoria, min: 0, vence: !!vence, interno, _new: true };
+            ins = newBySku[k] = { id: newId(), codigo: sku, nombre, unidad, categoria, min: hasMin ? minVal : 0, _minSet: hasMin, vence: !!vence, interno, _new: true };
           }
         }
         nuevo = true;
       }
+      if (ins && !ins._new) {
+        [["nombre", nombre, "Nombre"], ["categoria", categoria, "Categoría"], ["unidad", unidad, "Unidad"]].forEach(([f, v, lab]) => {
+          const key = ins.id + "|" + f;
+          if (v && !same(v, ins[f]) && !editSeen[key]) { editSeen[key] = v; (insEd ||= {})[f] = v; changes.push(`${lab}: ${ins[f] || "—"} → ${v}`); }
+        });
+        if (hasMin && Math.abs(minVal - (ins.min || 0)) > 1e-9 && !editSeen[ins.id + "|min"]) { editSeen[ins.id + "|min"] = minVal; (insEd ||= {}).min = minVal; changes.push(`Stock mínimo: ${fmt(ins.min || 0)} → ${fmt(minVal)}`); }
+        if (insEd && insEd.categoria !== undefined) { const c = regen(ins, insEd); if (c) changes.push(c); }
+      }
       if (ins && ins.vence && !nuevo) { if (!lote) errs.push("Este insumo exige lote"); if (!vence) errs.push("Este insumo exige vencimiento"); }
       if (ins && nuevo && vence && !lote) errs.push("Falta lote");
-      if (ins && lote && validISO(vence)) {
-        const prev = lotsOf(ins.id).find(l => l.lote === lote), key = norm(sku) + "|" + lote;
-        if (prev && prev.vence && prev.vence !== vence) errs.push(`El lote ya existe con vencimiento ${dmy(prev.vence)}`);
-        else if (lotVence[key] && lotVence[key] !== vence) errs.push("Mismo lote con dos fechas distintas en la planilla");
+
+      // Lote y vencimiento
+      let fixLot = false;
+      if (ins && lote && vence) {
+        const key = ins.id + "|" + lote;
+        const prevV = (state.movs.find(m => m.insumoId === ins.id && m.tipo === "recepcion" && (m.lote || "") === lote && m.vence && (!old || m.id !== old.id)) || {}).vence || "";
+        if (lotVence[key] && lotVence[key] !== vence) errs.push("Mismo lote con dos fechas distintas en la planilla");
         else lotVence[key] = vence;
+        if (prevV && prevV !== vence) {
+          if (old) { fixLot = true; changes.push(`Vencimiento del lote ${lote} en todas sus recepciones: ${dmy(prevV)} → ${dmy(vence)}`); }
+          else errs.push(`El lote ya existe con vencimiento ${dmy(prevV)}`);
+        }
       }
-      return { fila: r._fila, sku, ins, nuevo, prov, cant, lote, vence: validISO(vence) ? vence : "", fecha, guia, errs };
+
+      let kind;
+      if (errs.length) kind = "error";
+      else if (old) {
+        const nm = id => (insById(id) || newBySku[Object.keys(newBySku).find(k => newBySku[k].id === id)] || {}).nombre || "—";
+        [["insumoId", ins.id, "Insumo", nm], ["cantidad", cant, "Cantidad", fmt], ["contraparte", prov, "Proveedor"], ["lote", lote, "Lote"],
+         ["vence", vence, "Vencimiento", dmy], ["documento", guia, "Guía"], ["fecha", fecha, "Fecha", dmy]]
+          .forEach(([k, v, lab, f]) => { if (!same(old[k], v) && !(k === "vence" && fixLot)) changes.push(`${lab}: ${old[k] ? (f || String)(old[k]) : "—"} → ${v ? (f || String)(v) : "—"}`); });
+        kind = changes.length ? "update" : "same";
+      } else {
+        const dup = ins && state.movs.find(m => m.tipo === "recepcion" && m.insumoId === ins.id && Math.abs(m.cantidad - cant) < 1e-9 && same(m.lote, lote)
+          && same(m.documento, guia) && same(m.contraparte, prov) && (!fechaRaw || m.fecha === fechaRaw));
+        kind = dup ? "dup" : nuevo ? "newins" : "new";
+      }
+      return { fila: r._fila, sku, ins, nuevo, prov, cant, lote, vence, fecha, guia, errs, changes, kind, old, insEd, fixLot };
+    });
+
+    preview = [...catPrev, ...preview];
+    // Que una corrección no deje stock negativo (si ya se entregó parte de ese lote)
+    const delta = {};
+    const add = (insId, l, q) => { const k = insId + "\u0000" + (l || ""); delta[k] = (delta[k] || 0) + q; };
+    preview.filter(p => p.kind === "update").forEach(p => { add(p.old.insumoId, p.old.lote, -p.old.cantidad); add(p.ins.id, p.lote, p.cant); });
+    Object.entries(delta).forEach(([k, d]) => {
+      if (d >= -1e-9) return;
+      const [insId, l] = k.split("\u0000"); const cur = (lotsOf(insId).find(x => x.lote === l) || { stock: 0 }).stock;
+      if (cur + d < -1e-9) preview.filter(p => p.kind === "update" && p.old.insumoId === insId && (p.old.lote || "") === l).forEach(p => {
+        p.kind = "error"; p.errs.push(`La corrección dejaría stock negativo en ${(insById(insId) || {}).nombre || "el insumo"}${l ? `, lote ${l}` : ""}: ya se entregó parte de lo recibido. Corrige o anula esas entregas primero.`);
+      });
     });
     renderPreview();
   }
+  const KIND = { new: ["ok", "Nueva recepción"], newins: ["proximo", "Insumo nuevo"], update: ["devolucion", "Corrige"], catfix: ["devolucion", "Corrige insumo"], catsame: ["", "Sin cambios"], same: ["", "Sin cambios"], dup: ["", "Ya registrada (se omite)"], error: ["low", "Error"] };
+  const actionable = p => p.kind === "new" || p.kind === "newins" || p.kind === "update" || p.kind === "catfix" || (p.kind === "dup" && p.insEd);
   function renderPreview(){
-    const ok = preview.filter(p => !p.errs.length), bad = preview.length - ok.length;
-    const nuevos = new Set(ok.filter(p => p.nuevo).map(p => p.ins.id)).size;
+    const n = k => preview.filter(p => p.kind === k).length;
+    const nuevos = new Set(preview.filter(p => p.kind === "newins").map(p => p.ins.id)).size;
     $("#prevBox").hidden = !preview.length;
-    $("#prevSum").textContent = `${preview.length} filas · ${ok.length} listas · ${bad} con error · ${nuevos} insumo${nuevos===1?"":"s"} nuevo${nuevos===1?"":"s"}`;
-    $("#prevBody").innerHTML = preview.map(p => `<tr class="${p.errs.length ? "row-err" : ""}"><td class="num">${p.fila}</td>
-      <td>${p.errs.length ? `<span class="tag low">Error</span><div class="err-txt">${p.errs.map(esc).join("<br>")}</div>` : p.nuevo ? '<span class="tag proximo">Insumo nuevo</span>' : '<span class="tag ok">Listo</span>'}</td>
-      <td>${esc(p.sku)}</td><td>${p.ins && p.ins.interno ? `<span class="code">${esc(p.ins.interno)}</span>` : "—"}</td><td>${esc(p.ins ? p.ins.nombre : "")}</td>
-      <td>${esc(p.prov)}</td><td class="r num">${p.cant > 0 ? fmt(p.cant) + " " + esc(p.ins ? p.ins.unidad : "") : "—"}</td>
-      <td>${esc(p.lote || "—")}</td><td class="num">${p.vence ? dmy(p.vence) : "—"}</td><td>${esc(p.guia || "—")}</td></tr>`).join("");
-    $("#impBtn").textContent = ok.length ? `Importar ${ok.length} fila${ok.length===1?"":"s"}${bad ? ` (omitir ${bad} con error)` : ""}` : "No hay filas válidas";
-    $("#impBtn").disabled = !ok.length || !state.canWrite;
+    const parts = [`${preview.length} filas`];
+    if (n("new") + n("newins")) parts.push(`${n("new") + n("newins")} nuevas recepciones`);
+    if (nuevos) parts.push(`${nuevos} insumo${nuevos === 1 ? "" : "s"} nuevo${nuevos === 1 ? "" : "s"}`);
+    if (n("update") + n("catfix")) parts.push(`${n("update") + n("catfix")} correcciones`);
+    if (n("same") + n("catsame")) parts.push(`${n("same") + n("catsame")} sin cambios`);
+    if (n("dup")) parts.push(`${n("dup")} ya registradas`);
+    if (n("error")) parts.push(`${n("error")} con error`);
+    $("#prevSum").textContent = parts.join(" · ");
+    $("#prevBody").innerHTML = preview.map(p => { const [cls, lab] = KIND[p.kind];
+      const detail = p.kind === "error" ? `<div class="err-txt">${p.errs.map(esc).join("<br>")}</div>`
+        : p.changes.length ? `<div class="sub">${p.changes.map(esc).join("<br>")}</div>` : "";
+      return `<tr class="${p.kind === "error" ? "row-err" : ""}"><td class="num">${p.hoja ? `<span class="sub">Catálogo</span> ` : ""}${p.fila}</td>
+      <td><span class="tag ${cls}">${lab}</span>${detail}</td>
+      <td>${esc(p.sku)}</td><td>${p.ins && ((p.insEd && p.insEd.interno) || p.ins.interno) ? `<span class="code">${esc((p.insEd && p.insEd.interno) || p.ins.interno)}</span>` : "—"}</td><td>${esc(p.ins ? (p.insEd && p.insEd.nombre) || p.ins.nombre : "")}</td>
+      <td>${esc(p.prov)}</td><td class="r num">${p.cant > 0 ? fmt(p.cant) + " " + esc(p.ins ? (p.insEd && p.insEd.unidad) || p.ins.unidad : "") : "—"}</td>
+      <td>${esc(p.lote || "—")}</td><td class="num">${p.vence ? dmy(p.vence) : "—"}</td><td>${esc(p.guia || "—")}</td></tr>`; }).join("");
+    const go = preview.filter(actionable).length;
+    $("#impBtn").textContent = go ? `Aplicar ${go} cambio${go === 1 ? "" : "s"}${n("error") ? ` (omitir ${n("error")} con error)` : ""}` : "No hay nada nuevo que aplicar";
+    $("#impBtn").disabled = !go || !state.canWrite;
   }
   $("#impBtn").addEventListener("click", async () => {
     const msg = $("#impMsg"), resp = $("#cResp").value.trim();
-    if (!resp) { $("#cResp").focus(); return setMsg(msg, "Indica quién registra la carga."); }
-    const ok = preview.filter(p => !p.errs.length); if (!ok.length) return;
-    $("#impBtn").disabled = true; setMsg(msg, "Importando…", true);
-    let done = 0; const created = new Set();
+    const todo = preview.filter(actionable); if (!todo.length) return;
+    if (todo.some(p => p.kind !== "update" && p.kind !== "dup") && !resp) { $("#cResp").focus(); return setMsg(msg, "Indica quién registra la carga."); }
+    $("#impBtn").disabled = true; setMsg(msg, "Aplicando…", true);
+    let nNew = 0, nUpd = 0; const created = new Set(), edited = new Set();
     try {
-      for (const p of ok) {
-        if (p.ins._new && !created.has(p.ins.id)) { const { _new, ...doc } = p.ins; await putDoc("insumos", doc); created.add(p.ins.id); }
-        await putDoc("movimientos", { id: newId(), tipo: "recepcion", insumoId: p.ins.id, cantidad: p.cant, fecha: p.fecha, mes: p.fecha.slice(0,7),
-          contraparte: p.prov, documento: p.guia, responsable: resp, observaciones: "Carga masiva", creado: Date.now(), lote: p.lote, vence: p.vence, areaId: "", motivo: "" });
-        done++;
+      // 1. Insumos nuevos y correcciones de insumos
+      for (const p of todo) {
+        if (p.ins._new && !created.has(p.ins.id)) { const { _new, _minSet, ...doc } = p.ins; await putDoc("insumos", doc); created.add(p.ins.id); }
+        if (p.insEd && !p.ins._new) { const cur = insById(p.ins.id); if (cur) { await putDoc("insumos", { ...cur, ...p.insEd }); edited.add(p.ins.id); } }
       }
-      setMsg(msg, `Listo: ${done} recepciones registradas${created.size ? ` y ${created.size} insumo${created.size===1?"":"s"} nuevo${created.size===1?"":"s"} creado${created.size===1?"":"s"}` : ""}.`, true);
+      // 2. Correcciones de recepciones
+      for (const p of todo.filter(x => x.kind === "update")) {
+        await putDoc("movimientos", { ...p.old, insumoId: p.ins.id, cantidad: p.cant, contraparte: p.prov, lote: p.lote, vence: p.vence, documento: p.guia, fecha: p.fecha, mes: p.fecha.slice(0, 7), editado: Date.now() });
+        if (p.fixLot) for (const m of state.movs.filter(m => m.insumoId === p.ins.id && m.tipo === "recepcion" && (m.lote || "") === p.lote && m.id !== p.old.id && m.vence && m.vence !== p.vence))
+          await putDoc("movimientos", { ...m, vence: p.vence, editado: Date.now() });
+        nUpd++;
+      }
+      // 3. Recepciones nuevas
+      for (const p of todo.filter(x => x.kind === "new" || x.kind === "newins")) {
+        await putDoc("movimientos", { id: newId(), tipo: "recepcion", insumoId: p.ins.id, cantidad: p.cant, fecha: p.fecha, mes: p.fecha.slice(0, 7),
+          contraparte: p.prov, documento: p.guia, responsable: resp, observaciones: "Carga masiva", creado: Date.now(), lote: p.lote, vence: p.vence, areaId: "", motivo: "" });
+        nNew++;
+      }
+      const out = [];
+      if (nNew) out.push(`${nNew} recepciones nuevas`);
+      if (nUpd) out.push(`${nUpd} correcciones`);
+      if (created.size) out.push(`${created.size} insumo${created.size === 1 ? "" : "s"} creado${created.size === 1 ? "" : "s"}`);
+      if (edited.size) out.push(`${edited.size} insumo${edited.size === 1 ? "" : "s"} actualizado${edited.size === 1 ? "" : "s"}`);
+      setMsg(msg, `Listo: ${out.join(", ")}.`, true);
       preview = []; $("#prevBody").innerHTML = ""; $("#cFile").value = "";
-      setTimeout(() => { $("#prevBox").hidden = true; }, 4000);
-      try { localStorage.setItem(LKEY + "-resp", resp); } catch(e){}
-    } catch(e) { setMsg(msg, `Se registraron ${done} de ${ok.length} filas antes de un error de conexión. Revisa la pestaña Movimientos antes de volver a subir el archivo.`); }
+      setTimeout(() => { $("#prevBox").hidden = true; }, 5000);
+      if (resp) try { localStorage.setItem(LKEY + "-resp", resp); } catch(e){}
+    } catch(e) { setMsg(msg, "Se interrumpió la carga a mitad de camino. Revisa la pestaña Movimientos antes de volver a subir el archivo."); }
     finally { $("#impBtn").disabled = false; }
   });
   $("#impCancel").addEventListener("click", () => { preview = []; $("#prevBox").hidden = true; $("#cFile").value = ""; $("#impMsg").textContent = ""; });
@@ -1224,13 +1403,40 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   ["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
   drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) readFile(f); });
   $("#tplBtn").addEventListener("click", async () => {
-    const csv = "\ufeff" + [["SKU","Nombre","Categoría","Unidad","Proveedor","Cantidad","Lote","Vencimiento","Guía","Fecha recepción"],
-      ["7801234567890","Botella plástica 1 L","Botellas","unidad","Proveedor Ejemplo SpA","20","","","12345",""],
-      ["7809876543210","Ácido nítrico 65%","Reactivos","L","Proveedor Ejemplo SpA","5","L2401","31-12-2027","12345",""]]
+    const csv = "\ufeff" + [["SKU","Nombre","Categoría","Unidad","Stock mínimo","Proveedor","Cantidad","Lote","Vencimiento","Guía","Fecha recepción"],
+      ["7801234567890","Botella plástica 1 L","Botellas","unidad","10","Proveedor Ejemplo SpA","20","","","12345",""],
+      ["7809876543210","Ácido nítrico 65%","Reactivos","L","2","Proveedor Ejemplo SpA","5","L2401","31-12-2027","12345",""]]
       .map(r => r.map(v => `"${v}"`).join(";")).join("\r\n");
     if (downloads) { try { await downloads.save({ filename: "plantilla-carga-insumos.csv", data: csv }); return; } catch(e){} }
-    notice("Descarga no disponible", "Crea una planilla con las columnas: SKU, Nombre, Categoría, Unidad, Proveedor, Cantidad, Lote, Vencimiento, Guía, Fecha recepción.");
+    notice("Descarga no disponible", "Crea una planilla con las columnas: SKU, Nombre, Categoría, Unidad, Stock mínimo, Proveedor, Cantidad, Lote, Vencimiento, Guía, Fecha recepción.");
   });
+  $("#xBtn").addEventListener("click", () => {
+    const msg = $("#xMsg");
+    if (!window.XLSX) return setMsg(msg, "No se pudo generar el Excel en este equipo.");
+    const scope = $("#xScope").value;
+    const head = ["Código interno","SKU","Nombre","Categoría","Unidad","Stock mínimo","Proveedor","Cantidad","Lote","Vencimiento","Guía","Fecha recepción","Registrado por","ID registro"];
+    const vOf = m => m.vence || (lotsOf(m.insumoId).find(l => l.lote === (m.lote || "")) || {}).vence || "";
+    const rec = state.movs.filter(m => m.tipo === "recepcion" && (scope === "todo" || m.mes === state.month))
+      .sort((a,b) => a.fecha.localeCompare(b.fecha) || (a.creado||0) - (b.creado||0))
+      .map(m => { const i = insById(m.insumoId) || {};
+        return [i.interno || "", String(i.codigo || ""), i.nombre || "(insumo eliminado)", i.categoria || "", i.unidad || "", i.min ?? 0, m.contraparte || "", m.cantidad, m.lote || "", vOf(m) ? dmy(vOf(m)) : "", m.documento || "", dmy(m.fecha), m.responsable || "", m.id]; });
+    const stock = [];
+    sortedIns().forEach(i => lotsOf(i.id).filter(l => l.stock > 1e-9).forEach(l => {
+      const last = state.movs.filter(m => m.insumoId === i.id && m.tipo === "recepcion" && (m.lote || "") === l.lote).sort((a,b) => b.fecha.localeCompare(a.fecha))[0];
+      stock.push([i.interno || "", String(i.codigo), i.nombre, i.categoria || "", i.unidad, i.min ?? 0, last ? last.contraparte : "", Math.round(l.stock * 100) / 100, l.lote, l.vence ? dmy(l.vence) : ""]);
+    }));
+    const cat = sortedIns().map(i => [i.interno || "", String(i.codigo), i.nombre, i.categoria || "", i.unidad, i.min, i.vence ? "Sí" : "No", Math.round(stockOf(i.id) * 100) / 100]);
+    const sheet = (rows, widths) => { const ws = XLSX.utils.aoa_to_sheet(rows); ws["!cols"] = widths.map(w => ({ wch: w })); if (rows.length > 1) ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length - 1, c: rows[0].length - 1 } }) }; return ws; };
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, sheet([head, ...rec], [14,16,30,14,10,12,24,10,12,13,12,15,18,18]), "Recepciones");
+    XLSX.utils.book_append_sheet(wb, sheet([head.slice(0, 10), ...stock], [14,16,30,14,10,12,24,10,12,13]), "Stock por lote");
+    XLSX.utils.book_append_sheet(wb, sheet([["Código interno","SKU","Nombre","Categoría","Unidad","Stock mínimo","Controla vencimiento","Stock actual"], ...cat], [14,16,30,14,10,13,20,13]), "Catálogo");
+    const out = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    saveFile(`insumos-en-app-${today()}.xlsx`, new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+    setMsg(msg, `Descargado: ${rec.length} recepciones, ${stock.length} lotes con stock y ${cat.length} insumos.`, true);
+  });
+
+  $("#fixDl").addEventListener("click", () => { $("#xScope").value = "todo"; $("#xBtn").click(); });
   $("#cFecha").value = today();
 
   $("#fFecha").value = today(); $("#mMes").value = state.month;
